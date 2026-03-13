@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sevenity — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #080808;
+      --bg2:     #101010;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --white:   #ffffff;
+      --gray:    rgba(255,255,255,0.48);
+      --gray2:   rgba(255,255,255,0.22);
+      --blue:    #2d5be3;
+      --blue-l:  #4a75ff;
+      --blue-bg: rgba(45,91,227,0.1);
+      --blue-bd: rgba(45,91,227,0.32);
+      --red:     #ff4444;
+      --grid:    rgba(255,255,255,0.03);
+    }
+    html, body { background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none; z-index: 0;
+    }
+
+    /* LOGIN */
+    #login-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+    }
+    #login-overlay::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+      background-size: 40px 40px;
+    }
+    #login-overlay::after {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 260px;
+      background: radial-gradient(ellipse at top, rgba(45,91,227,0.1) 0%, transparent 70%);
+    }
+
+    .login-box {
+      position: relative; z-index: 2;
+      width: 360px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 36px 32px; text-align: center;
+    }
+    .login-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue-bd), transparent);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .login-logo {
+      height: 60px; width: auto; margin: 0 auto 12px; display: block;
+      filter: drop-shadow(0 0 16px rgba(45,91,227,0.6));
+    }
+    .login-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .login-sub  { font-size: 0.72rem; color: var(--gray); margin-bottom: 24px; }
+
+    .login-box input {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 9px;
+      color: var(--white); font-family: 'Inter', sans-serif;
+      font-size: 0.9rem; font-weight: 500;
+      padding: 11px 14px; outline: none; transition: all 0.2s;
+      text-align: center; letter-spacing: 0.1em; margin-bottom: 12px;
+    }
+    .login-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(45,91,227,0.15); }
+
+    .login-box button {
+      width: 100%; padding: 11px; background: var(--blue);
+      border: none; border-radius: 9px; color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 0 0 0 rgba(45,91,227,0);
+    }
+    .login-box button:hover { background: var(--blue-l); box-shadow: 0 0 20px rgba(45,91,227,0.4); }
+    .login-box button:active { transform: scale(0.98); }
+    .login-err { font-size: 0.72rem; color: #ff6b6b; margin-top: 10px; display: none; }
+
+    /* APP */
+    #app { display: none; position: relative; z-index: 1; min-height: 100vh; }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 28px; height: 58px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.85); backdrop-filter: blur(14px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .hdr-left { display: flex; align-items: center; gap: 10px; }
+    .hdr-logo { height: 28px; width: auto; filter: drop-shadow(0 0 6px rgba(45,91,227,0.5)); }
+    .hdr-name  { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hdr-slash { color: var(--gray2); margin: 0 6px; }
+    .hdr-page  { font-size: 0.85rem; font-weight: 500; color: var(--gray); }
+    .hdr-right { display: flex; align-items: center; gap: 8px; }
+
+    .btn-sm {
+      font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 500;
+      padding: 6px 14px; border-radius: 7px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+      color: var(--gray); cursor: pointer; transition: all 0.18s;
+    }
+    .btn-sm:hover { color: var(--white); border-color: var(--border2); }
+    .btn-sm.blue  { color: var(--blue-l); border-color: var(--blue-bd); background: var(--blue-bg); }
+    .btn-sm.blue:hover { box-shadow: 0 0 12px rgba(45,91,227,0.3); }
+    .btn-sm.danger:hover { color: #ff6b6b; border-color: rgba(255,68,68,0.3); }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid var(--border); }
+    .stat { padding: 20px 28px; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; color: var(--white); margin-bottom: 4px; }
+    .stat-num.blue { color: var(--blue-l); }
+    .stat-lbl { font-size: 0.68rem; font-weight: 500; color: var(--gray); }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 28px; border-bottom: 1px solid var(--border);
+    }
+    .toolbar span { font-size: 0.78rem; font-weight: 600; color: var(--gray); }
+
+    /* LIST */
+    #voice-list { padding: 0 28px; }
+
+    .voice-item {
+      display: grid; grid-template-columns: 40px 1fr auto;
+      gap: 16px; align-items: start;
+      padding: 20px 0; border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.3s ease forwards; opacity: 0;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    .item-num { font-size: 0.72rem; font-weight: 700; color: var(--gray2); padding-top: 2px; text-align: right; }
+    .item-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 5px; }
+    .item-meta {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      font-size: 0.7rem; font-weight: 500; color: var(--gray); margin-bottom: 12px;
+    }
+    .item-meta span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--blue-bd); }
+
+    audio {
+      width: 100%; height: 32px;
+      filter: invert(1) hue-rotate(180deg) brightness(0.8); opacity: 0.85;
+    }
+    .no-audio {
+      font-size: 0.68rem; font-weight: 500; color: var(--gray2);
+      padding: 8px 12px; background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border); border-radius: 7px;
+    }
+
+    .item-actions { display: flex; flex-direction: column; gap: 6px; }
+    .btn-act {
+      font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 500;
+      padding: 6px 12px; border-radius: 7px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+      color: var(--gray); cursor: pointer; transition: all 0.18s; white-space: nowrap;
+    }
+    .btn-act:hover { color: var(--white); border-color: var(--border2); }
+    .btn-act.del:hover { color: #ff6b6b; border-color: rgba(255,68,68,0.3); background: rgba(255,68,68,0.05); }
+
+    .empty { padding: 80px 28px; text-align: center; }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.12; }
+    .empty p { font-size: 0.82rem; font-weight: 500; color: var(--gray); }
+
+    .loading {
+      padding: 60px; text-align: center;
+      font-size: 0.78rem; font-weight: 500; color: var(--gray);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .spin {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(45,91,227,0.2); border-top-color: var(--blue-l);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: #181818; border: 1px solid rgba(255,255,255,0.1); border-radius: 9px;
+      color: var(--white); font-size: 0.75rem; font-weight: 500;
+      padding: 10px 20px; opacity: 0; transition: all 0.3s;
+      z-index: 100; pointer-events: none; box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.err  { border-color: rgba(255,68,68,0.35); color: #ff7070; }
+
+    @media (max-width: 640px) {
+      header { padding: 0 16px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stat:nth-child(3) { grid-column:1/-1; border-right:none; border-top: 1px solid var(--border); }
+      .toolbar, #voice-list { padding-left: 16px; padding-right: 16px; }
+      .voice-item { grid-template-columns: 1fr; }
+      .item-num { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-overlay">
+  <div class="login-box">
+    <img class="login-logo" src="logo.png" alt="Sevenity" />
+    <div class="login-name">Sevenity</div>
+    <p class="login-sub">Admin Dashboard</p>
+    <input type="password" id="pw-input" placeholder="Password" />
+    <button onclick="doLogin()">Masuk →</button>
+    <p class="login-err" id="login-err">Password salah. Coba lagi.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="hdr-left">
+      <img class="hdr-logo" src="logo.png" alt="Sevenity" />
+      <span class="hdr-name">Sevenity</span>
+      <span class="hdr-slash">/</span>
+      <span class="hdr-page">Admin</span>
+    </div>
+    <div class="hdr-right">
+      <button class="btn-sm blue" onclick="loadVoiceNotes()">↺ Refresh</button>
+      <button class="btn-sm danger" onclick="doLogout()">Keluar</button>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num blue" id="st-total">—</div>
+      <div class="stat-lbl">Total Voice Note</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="st-today">—</div>
+      <div class="stat-lbl">Hari Ini</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="st-size">—</div>
+      <div class="stat-lbl">Total Storage</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <span>Semua Rekaman</span>
+  </div>
+
+  <div id="voice-list">
+    <div class="loading"><div class="spin"></div>Memuat data...</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API_BASE = '/api';
+  let authToken = sessionStorage.getItem('sv_auth');
+
+  document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+  async function doLogin(){
+    const pw=document.getElementById('pw-input').value;
+    if(!pw)return;
+    try{
+      const res=await fetch(`${API_BASE}/admin-login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+      if(res.ok){const{token}=await res.json();sessionStorage.setItem('sv_auth',token);authToken=token;showApp();}
+      else{document.getElementById('login-err').style.display='block';document.getElementById('pw-input').value='';}
+    }catch{
+      if(pw==='admin123'){authToken='demo';sessionStorage.setItem('sv_auth','demo');showApp();loadDemoData();}
+      else{document.getElementById('login-err').style.display='block';}
+    }
+  }
+
+  function showApp(){
+    document.getElementById('login-overlay').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadVoiceNotes();
+  }
+
+  function doLogout(){
+    sessionStorage.removeItem('sv_auth');authToken=null;
+    document.getElementById('login-overlay').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
+
+  async function loadVoiceNotes(){
+    document.getElementById('voice-list').innerHTML='<div class="loading"><div class="spin"></div>Memuat data...</div>';
+    try{
+      const res=await fetch(`${API_BASE}/voice-notes`,{headers:{'Authorization':`Bearer ${authToken}`}});
+      if(res.status===401){doLogout();return;}
+      const{data,stats}=await res.json();
+      renderStats(stats);renderList(data);
+    }catch{loadDemoData();}
+  }
+
+  function loadDemoData(){
+    const demo=[
+      {id:1,sender_name:'Rina Kusuma', duration:47, file_size:230400,created_at:new Date(Date.now()-3600000).toISOString(),file_url:null},
+      {id:2,sender_name:'Budi Santoso',duration:123,file_size:614400,created_at:new Date(Date.now()-86400000).toISOString(),file_url:null},
+      {id:3,sender_name:'Anisa Dewi',  duration:31, file_size:153600,created_at:new Date(Date.now()-172800000).toISOString(),file_url:null},
+    ];
+    renderStats({total:3,today:1,totalSize:998400});
+    renderList(demo);
+  }
+
+  function renderStats(s){
+    document.getElementById('st-total').textContent=s.total;
+    document.getElementById('st-today').textContent=s.today;
+    document.getElementById('st-size').textContent=fmtSize(s.totalSize);
+  }
+
+  function renderList(data){
+    const el=document.getElementById('voice-list');
+    if(!data?.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎙</div><p>Belum ada voice note masuk.</p></div>';return;}
+    el.innerHTML=data.map((item,i)=>`
+      <div class="voice-item" style="animation-delay:${i*.04}s">
+        <div class="item-num">${String(i+1).padStart(2,'0')}</div>
+        <div>
+          <div class="item-name">${esc(item.sender_name)}</div>
+          <div class="item-meta">
+            <span><span class="dot"></span>${fmtDate(item.created_at)}</span>
+            <span><span class="dot"></span>${fmtDur(item.duration)}</span>
+            <span><span class="dot"></span>${fmtSize(item.file_size)}</span>
+          </div>
+          ${item.file_url?`<audio controls src="${item.file_url}"></audio>`:`<div class="no-audio">Audio tersedia setelah terhubung ke Supabase</div>`}
+        </div>
+        <div class="item-actions">
+          ${item.file_url?`<button class="btn-act" onclick="dl('${item.file_url}','${esc(item.sender_name)}')">↓ Unduh</button>`:''}
+          <button class="btn-act del" onclick="delItem(${item.id},this)">× Hapus</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function delItem(id,btn){
+    if(!confirm('Hapus voice note ini?'))return;
+    btn.textContent='...';
+    try{
+      const res=await fetch(`${API_BASE}/voice-notes/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${authToken}`}});
+      if(res.ok){const row=btn.closest('.voice-item');row.style.opacity='0';row.style.transition='opacity 0.3s';setTimeout(()=>row.remove(),300);toast('Voice note dihapus.');}
+    }catch{toast('Gagal menghapus.',true);btn.textContent='× Hapus';}
+  }
+
+  function dl(url,name){const a=document.createElement('a');a.href=url;a.download=`sevenity_${name}.webm`;a.click();}
+
+  function fmtDate(iso){return new Date(iso).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function fmtDur(s){if(!s)return'—';return`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+  function fmtSize(b){if(!b)return'—';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3000);}
+
+  if(authToken) showApp();
+</script>
+</body>
+</html>

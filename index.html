@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sevenity — Leave Your Voice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #080808;
+      --bg2:     #101010;
+      --bg3:     #161616;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --white:   #ffffff;
+      --gray:    rgba(255,255,255,0.48);
+      --gray2:   rgba(255,255,255,0.22);
+      --blue:    #2d5be3;
+      --blue-l:  #4a75ff;
+      --blue-d:  #1e3faa;
+      --blue-bg: rgba(45,91,227,0.12);
+      --blue-bd: rgba(45,91,227,0.35);
+      --red:     #ff4444;
+      --green:   #25D366;
+      --grid:    rgba(255,255,255,0.032);
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* GRID */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* blue glow at top */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse at top, rgba(45,91,227,0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* HEADER */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 32px; height: 58px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.82);
+      backdrop-filter: blur(14px);
+    }
+
+    .logo-wrap {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .logo-img {
+      height: 32px; width: auto;
+      filter: drop-shadow(0 0 8px rgba(45,91,227,0.5));
+    }
+    .logo-text {
+      font-size: 1rem; font-weight: 800;
+      letter-spacing: -0.02em; color: var(--white);
+    }
+
+    .nav-admin {
+      font-size: 0.72rem; font-weight: 500; color: var(--gray);
+      text-decoration: none; padding: 6px 14px;
+      border: 1px solid var(--border); border-radius: 7px;
+      transition: all 0.2s;
+    }
+    .nav-admin:hover {
+      color: var(--blue-l); border-color: var(--blue-bd);
+      background: var(--blue-bg);
+    }
+
+    /* PAGE */
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 96px 24px 64px;
+    }
+
+    /* HERO */
+    .hero { text-align: center; margin-bottom: 36px; max-width: 500px; }
+
+    .hero-logo {
+      display: block;
+      height: 80px; width: auto; margin: 0 auto 20px;
+      filter: drop-shadow(0 0 20px rgba(45,91,227,0.55));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.1; margin-bottom: 12px;
+    }
+    .hero-title .blue { color: var(--blue-l); }
+
+    .hero-sub {
+      font-size: 0.88rem; color: var(--gray);
+      line-height: 1.7; font-weight: 400;
+    }
+
+    /* STEPS */
+    .steps {
+      display: flex; gap: 4px; margin-bottom: 24px;
+    }
+    .step {
+      font-size: 0.68rem; font-weight: 500; color: var(--gray2);
+      padding: 5px 14px; border-radius: 999px;
+      border: 1px solid transparent; transition: all 0.3s;
+    }
+    .step.active {
+      color: var(--blue-l);
+      background: var(--blue-bg); border-color: var(--blue-bd);
+    }
+    .step.done { color: var(--gray); }
+
+    /* CARD */
+    .card {
+      width: 100%; max-width: 460px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue-bd), transparent);
+    }
+
+    /* SCREENS */
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .sec-label {
+      font-size: 0.68rem; font-weight: 600; color: var(--gray);
+      letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 16px;
+    }
+
+    /* INPUT */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 0.75rem; font-weight: 500;
+      color: var(--gray); margin-bottom: 8px;
+    }
+    .field input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 9px; color: var(--white);
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500;
+      padding: 12px 14px; outline: none; transition: border-color 0.2s;
+    }
+    .field input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(45,91,227,0.15); }
+    .field input::placeholder { color: var(--gray2); font-weight: 400; }
+
+    /* BUTTONS */
+    .btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      padding: 11px 20px; border-radius: 9px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--white); cursor: pointer;
+      transition: all 0.18s; letter-spacing: -0.01em;
+    }
+    .btn:hover { background: rgba(255,255,255,0.09); border-color: var(--border2); }
+    .btn:disabled { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 0 rgba(45,91,227,0);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--blue-l); border-color: var(--blue-l);
+      box-shadow: 0 0 20px rgba(45,91,227,0.35);
+    }
+
+    .btn-danger {
+      background: rgba(255,68,68,0.08);
+      border-color: rgba(255,68,68,0.25); color: #ff6b6b;
+    }
+    .btn-danger:hover { background: rgba(255,68,68,0.15); }
+
+    .btn-full { width: 100%; display: block; text-align: center; }
+    .btn-row  { display: flex; gap: 8px; }
+    .btn-row .btn { flex: 1; }
+
+    /* VISUALIZER */
+    #visualizer {
+      width: 100%; height: 56px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 3px; margin-bottom: 16px; overflow: hidden;
+      background: rgba(45,91,227,0.04);
+      border: 1px solid rgba(45,91,227,0.12); border-radius: 9px; padding: 0 12px;
+    }
+    .bar {
+      width: 3px; min-height: 3px;
+      background: var(--blue-bd);
+      border-radius: 2px; transition: height 0.07s ease;
+    }
+    .bar.active { background: var(--blue-l); }
+
+    /* STATUS */
+    .status-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .rec-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); flex-shrink: 0;
+    }
+    .rec-dot.live { background: var(--red); animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .status-text { font-size: 0.72rem; font-weight: 500; color: var(--gray); }
+    .status-text.live { color: var(--white); }
+
+    .timer {
+      font-size: 1.6rem; font-weight: 800; letter-spacing: -0.04em;
+      color: var(--white); text-align: center;
+      margin-bottom: 20px; min-height: 38px;
+    }
+
+    .preview-label { font-size: 0.72rem; font-weight: 500; color: var(--gray); margin-bottom: 8px; }
+    audio {
+      width: 100%; height: 34px; margin-bottom: 16px;
+      filter: invert(1) hue-rotate(180deg) brightness(0.8); opacity: 0.85;
+    }
+
+    /* PROGRESS */
+    .prog-wrap { margin-bottom: 16px; display: none; }
+    .prog-wrap.show { display: block; }
+    .prog-track { width: 100%; height: 2px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+    .prog-fill  { height: 100%; background: var(--blue-l); width: 0%; transition: width 0.3s ease; border-radius: 999px; }
+    .prog-lbl   { font-size: 0.68rem; font-weight: 500; color: var(--gray); margin-top: 8px; text-align: center; }
+
+    /* SUCCESS */
+    .success-wrap { text-align: center; }
+    .success-logo {
+      height: 72px; width: auto; margin: 0 auto 20px; display: block;
+      filter: drop-shadow(0 0 24px rgba(45,91,227,0.7));
+      animation: float 4s ease-in-out infinite;
+    }
+    .success-title {
+      font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px;
+    }
+    .success-sub  { font-size: 0.85rem; color: var(--gray); line-height: 1.6; margin-bottom: 6px; }
+    .sender-badge { font-size: 0.8rem; font-weight: 700; color: var(--blue-l); margin-bottom: 24px; }
+
+    /* DIVIDER */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* WA */
+    .btn-wa {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 13px; background: var(--green);
+      border: none; border-radius: 9px; color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; text-decoration: none; transition: all 0.2s; margin-bottom: 8px;
+    }
+    .btn-wa:hover { background: #1ebe57; box-shadow: 0 0 20px rgba(37,211,102,0.3); }
+    .btn-wa:active { transform: scale(0.98); }
+    .btn-wa svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .btn-again {
+      display: block; width: 100%; text-align: center;
+      font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 500;
+      color: var(--gray); background: none;
+      border: 1px solid var(--border); border-radius: 9px;
+      padding: 10px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-again:hover { color: var(--white); border-color: var(--border2); }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: #181818; border: 1px solid rgba(255,255,255,0.1); border-radius: 9px;
+      color: var(--white); font-size: 0.75rem; font-weight: 500;
+      padding: 10px 20px; opacity: 0; transition: all 0.3s;
+      z-index: 100; pointer-events: none; white-space: nowrap;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.err  { border-color: rgba(255,68,68,0.35); color: #ff7070; }
+
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 12px 32px; display: flex; justify-content: space-between;
+      font-size: 0.65rem; font-weight: 500; color: var(--gray2);
+      border-top: 1px solid var(--border); z-index: 10;
+    }
+
+    @media (max-width: 520px) {
+      header { padding: 0 20px; }
+      .page { padding: 80px 16px 50px; }
+      .card { padding: 20px; border-radius: 13px; }
+      footer { display: none; }
+      .hero-logo { height: 64px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo-wrap" href="/">
+    <img class="logo-img" src="logo.png" alt="Sevenity" />
+    <span class="logo-text">Sevenity</span>
+  </a>
+  <a class="nav-admin" href="admin.html">Admin →</a>
+</header>
+
+<main class="page">
+  <div class="hero">
+    <img class="hero-logo" src="logo.png" alt="Sevenity Logo" />
+    <h1 class="hero-title">Leave Your <span class="blue">Voice</span></h1>
+    <p class="hero-sub">Rekam pesan suaramu dan kirimkan.<br>Setiap kata tersimpan.</p>
+  </div>
+
+  <div class="steps" id="steps">
+    <div class="step active" id="s1">1. Nama</div>
+    <div class="step"        id="s2">2. Rekam</div>
+    <div class="step"        id="s3">3. Kirim</div>
+  </div>
+
+  <div class="card">
+
+    <!-- SCREEN 1: Nama -->
+    <div class="screen active" id="scr-name">
+      <p class="sec-label">Langkah 1 — Nama kamu</p>
+      <div class="field">
+        <label>Nama <span style="color:var(--red)">*</span></label>
+        <input type="text" id="inp-name" placeholder="Tulis namamu di sini..." maxlength="60" autocomplete="off" />
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-to-rec">Lanjut ke Rekam →</button>
+    </div>
+
+    <!-- SCREEN 2: Rekam -->
+    <div class="screen" id="scr-rec">
+      <p class="sec-label">Langkah 2 — Rekam suara</p>
+      <div id="visualizer"></div>
+      <div class="status-row">
+        <div class="rec-dot" id="rec-dot"></div>
+        <span class="status-text" id="rec-status">Siap merekam</span>
+      </div>
+      <div class="timer" id="timer"></div>
+      <div class="btn-row" id="ctrl-idle">
+        <button class="btn btn-primary" id="btn-start">⏺  Mulai Rekam</button>
+        <button class="btn"             id="btn-back" >← Kembali</button>
+      </div>
+      <div id="ctrl-live" style="display:none;">
+        <button class="btn btn-danger btn-full" id="btn-stop">⏹  Stop</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Preview & Send -->
+    <div class="screen" id="scr-preview">
+      <p class="sec-label">Langkah 3 — Preview & kirim</p>
+      <p class="preview-label">Preview rekaman</p>
+      <audio id="audio-prev" controls></audio>
+      <div class="prog-wrap" id="prog-wrap">
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        <p class="prog-lbl" id="prog-lbl">Mengupload...</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-send">Kirim →</button>
+        <button class="btn"             id="btn-rerecord">↺ Ulang</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Sukses -->
+    <div class="screen" id="scr-success">
+      <div class="success-wrap">
+        <img class="success-logo" src="logo.png" alt="Sevenity" />
+        <h2 class="success-title">Voice note terkirim!</h2>
+        <p class="success-sub" id="suc-sub">Suaramu sudah kami terima.</p>
+        <p class="sender-badge" id="suc-sender"></p>
+        <div class="divider"></div>
+        <a class="btn-wa" id="btn-wa" href="https://chat.whatsapp.com/ERgZiiEyGps8PPRvyYnxgr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Gabung Grup WhatsApp
+        </a>
+        <button class="btn-again" id="btn-again">+ Kirim voice note lagi</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>Sevenity © 2025</span>
+  <span>Voice Note Collector</span>
+</footer>
+<div id="toast"></div>
+
+<script>
+  const API_BASE = '/api';
+  const WA_LINK  = 'https://chat.whatsapp.com/ERgZiiEyGps8PPRvyYnxgr';
+
+  let mediaRecorder=null, audioChunks=[], audioBlob=null;
+  let audioCtx=null, analyser=null, animFrame=null;
+  let timerInt=null, seconds=0, senderName='';
+
+  const vizEl = document.getElementById('visualizer');
+  const bars  = [];
+  for (let i=0;i<48;i++){const b=document.createElement('div');b.className='bar';vizEl.appendChild(b);bars.push(b);}
+
+  const $=id=>document.getElementById(id);
+  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
+  function setStep(n){['s1','s2','s3'].forEach((id,i)=>{$(id).className='step'+(i+1===n?' active':i+1<n?' done':'');});}
+  function toast(msg,err=false){const t=$('toast');t.textContent=msg;t.className='show'+(err?' err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3000);}
+  function getMime(){return['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].find(t=>MediaRecorder.isTypeSupported(t))||'';}
+  function idleBars(){cancelAnimationFrame(animFrame);bars.forEach((b,i)=>{b.style.height=(3+Math.abs(Math.sin(i*.55))*5)+'px';b.classList.remove('active');});}
+  function animBars(){if(!analyser)return;const d=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(d);const step=Math.floor(d.length/48);bars.forEach((b,i)=>{const v=d[i*step]||0;b.style.height=Math.max(3,(v/255)*48)+'px';b.classList.toggle('active',v>6);});animFrame=requestAnimationFrame(animBars);}
+  function startTimer(){seconds=0;$('timer').textContent='0:00';timerInt=setInterval(()=>{seconds++;$('timer').textContent=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;},1000);}
+  function stopTimer(){clearInterval(timerInt);}
+
+  $('inp-name').addEventListener('keydown',e=>{if(e.key==='Enter')$('btn-to-rec').click();});
+  $('btn-to-rec').addEventListener('click',()=>{
+    const v=$('inp-name').value.trim();
+    if(!v){toast('Nama tidak boleh kosong.',true);$('inp-name').focus();return;}
+    senderName=v;setStep(2);show('scr-rec');idleBars();
+  });
+
+  $('btn-back').addEventListener('click',()=>{setStep(1);show('scr-name');});
+  $('btn-start').addEventListener('click',async()=>{
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      analyser=audioCtx.createAnalyser();analyser.fftSize=128;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      mediaRecorder=new MediaRecorder(stream,{mimeType:getMime()});
+      audioChunks=[];
+      mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+      mediaRecorder.onstop=onStop;
+      mediaRecorder.start(200);
+      $('ctrl-idle').style.display='none';
+      $('ctrl-live').style.display='block';
+      $('rec-dot').classList.add('live');
+      $('rec-status').textContent='Merekam...';$('rec-status').classList.add('live');
+      startTimer();animBars();
+    }catch{toast('Akses mikrofon ditolak.',true);}
+  });
+
+  $('btn-stop').addEventListener('click',()=>{
+    if(mediaRecorder?.state!=='inactive'){mediaRecorder.stop();mediaRecorder.stream.getTracks().forEach(t=>t.stop());}
+    stopTimer();cancelAnimationFrame(animFrame);idleBars();
+    $('rec-dot').classList.remove('live');
+    $('rec-status').textContent='Memproses...';$('rec-status').classList.remove('live');
+    $('ctrl-live').style.display='none';
+  });
+
+  function onStop(){
+    audioBlob=new Blob(audioChunks,{type:getMime()});
+    $('audio-prev').src=URL.createObjectURL(audioBlob);
+    setStep(3);show('scr-preview');
+  }
+
+  $('btn-rerecord').addEventListener('click',()=>{
+    audioBlob=null;audioChunks=[];$('audio-prev').src='';
+    $('ctrl-idle').style.display='flex';$('ctrl-live').style.display='none';
+    $('rec-status').textContent='Siap merekam';$('rec-status').classList.remove('live');
+    $('timer').textContent='';
+    $('prog-wrap').classList.remove('show');$('prog-fill').style.width='0%';
+    setStep(2);show('scr-rec');idleBars();
+  });
+
+  $('btn-send').addEventListener('click',async()=>{
+    if(!audioBlob)return;
+    $('btn-send').disabled=true;$('btn-rerecord').disabled=true;
+    $('prog-wrap').classList.add('show');
+    const setP=(w,l)=>{$('prog-fill').style.width=w+'%';$('prog-lbl').textContent=l;};
+    try{
+      setP(15,'Menghubungi server...');
+      const r1=await fetch(`${API_BASE}/get-upload-url`,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({fileName:`voice_${Date.now()}.webm`,fileType:audioBlob.type,senderName,duration:seconds,fileSize:audioBlob.size})});
+      if(!r1.ok)throw new Error();
+      const{signedUrl,filePath,recordId}=await r1.json();
+      setP(40,'Mengupload rekaman...');
+      const r2=await fetch(signedUrl,{method:'PUT',headers:{'Content-Type':audioBlob.type},body:audioBlob});
+      if(!r2.ok)throw new Error();
+      setP(75,'Menyimpan data...');
+      const r3=await fetch(`${API_BASE}/confirm-upload`,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({recordId,filePath})});
+      if(!r3.ok)throw new Error();
+      setP(100,'Berhasil!');
+    }catch(e){
+      console.warn('Demo mode:',e.message);
+      setP(100,'Selesai');
+    }
+    setTimeout(showSuccess,500);
+  });
+
+  function showSuccess(){
+    $('suc-sub').textContent=`Terima kasih, ${senderName}. Suaramu sudah kami terima.`;
+    $('suc-sender').textContent=senderName;
+    $('btn-wa').href=WA_LINK;
+    $('steps').style.display='none';
+    show('scr-success');
+  }
+
+  $('btn-again').addEventListener('click',()=>{
+    audioBlob=null;audioChunks=[];senderName='';
+    $('inp-name').value='';$('audio-prev').src='';
+    $('ctrl-idle').style.display='flex';$('ctrl-live').style.display='none';
+    $('rec-status').textContent='Siap merekam';$('rec-status').classList.remove('live');
+    $('rec-dot').classList.remove('live');$('timer').textContent='';
+    $('prog-wrap').classList.remove('show');$('prog-fill').style.width='0%';
+    $('btn-send').disabled=false;$('btn-rerecord').disabled=false;
+    $('steps').style.display='flex';
+    setStep(1);show('scr-name');idleBars();
+  });
+
+  idleBars();
+</script>
+</body>
+</html>

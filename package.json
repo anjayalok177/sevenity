@@ -1,0 +1,9 @@
+{
+  "name": "sevenity",
+  "version": "1.0.0",
+  "description": "Sevenity Voice Note Collector",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
